@@ -1,1 +1,58 @@
-venv
+venv# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+
+# Environment variables and secrets
+.env
+*.env
+
+# Output and build files
+output/
+dist/
+build/
+*.log
+
+# System-specific files
+.DS_Store
+Thumbs.db
+
+# VS Code and PyCharm project files
+.vscode/
+.idea/
+
+# Python cache
+*.egg-info/
+.eggs/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Uvicorn log files
+*.pid
+*.db
+
+# Coverage and test reports
+htmlcov/
+coverage.xml
+.pytest_cache/
+.tox/
+.nox/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+.pyre/
+
+# Pipenv
+Pipfile.lock
+Pipfile
+
+# Output Excel or intermediate uploads if checked accidentally
+uploads/
