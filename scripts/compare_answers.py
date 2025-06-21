@@ -37,7 +37,7 @@ def run_comparison(
     print("\n🧪 Sample QIDs from response file:", response_df["Question ID"].head().tolist())
     print("🧪 Sample QIDs from correct file:", correct_df["Question ID"].head().tolist())
 
-    # === Add Category Column (derived from 'Source File' name) ===
+    # === Add Category Column (from Source File) ===
     if "Source File" in merged_df.columns:
         merged_df["Category"] = merged_df["Source File"].str.replace(".html", "", regex=False)
     else:
@@ -59,18 +59,17 @@ def run_comparison(
         status = row["Status"].lower()
         chosen = row["Chosen Option"]
         correct = row["Correct Option"]
-
         if "not answered" in status or "--" in chosen or chosen == "":
             return "NA"
         return "True" if chosen == correct else "False"
 
     merged_df["Is Correct"] = merged_df.apply(determine_correctness, axis=1)
 
-    # === Save output Excel (temporary) ===
+    # === Save full comparison for debugging ===
     merged_df.to_excel(output_file, index=False)
     print(f"\n✅ Comparison saved to: {output_file}")
 
-    # === Summary by category ===
+    # === Summary per category ===
     summary = []
     print("\n📊 Summary by Category:")
 
@@ -89,7 +88,8 @@ def run_comparison(
             "Attempted": attempted,
             "Correct": correct,
             "Incorrect": incorrect,
-            "Not Answered": not_answered
+            "Not Answered": not_answered,
+            "Score": correct * 5 - incorrect  # 📘 CUET scoring logic: +5 for correct, -1 for incorrect
         })
 
         print(f"\n📚 {category}")
@@ -98,8 +98,17 @@ def run_comparison(
         print(f"   ✅ Correct      : {correct}")
         print(f"   ❌ Incorrect    : {incorrect}")
         print(f"   🚫 Not Answered : {not_answered}")
+        print(f"   🧾 Score        : {correct * 5 - incorrect}")
 
-    # === Cleanup uploads and temp files ===
+    # === Extract student info ===
+    student_info = {}
+    if "Name" in correct_df.columns and "Application No" in correct_df.columns:
+        student_info = {
+            "Name": correct_df["Name"].iloc[0],
+            "Application No": correct_df["Application No"].iloc[0]
+        }
+
+    # === Cleanup uploaded and temp files ===
     print("\n🧹 Cleaning up uploaded and intermediate files...")
     for file in os.listdir(uploads_dir):
         os.remove(os.path.join(uploads_dir, file))
@@ -109,10 +118,14 @@ def run_comparison(
             os.remove(file)
 
     print("🧼 Cleanup complete.")
-    return summary
+
+    return {
+        "student": student_info,
+        "summary": summary
+    }
 
 # === Run standalone ===
 if __name__ == "__main__":
-    summary = run_comparison()
+    result = run_comparison()
     print("\n📤 Final Summary JSON:")
-    print(summary)
+    print(result)

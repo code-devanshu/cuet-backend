@@ -11,9 +11,15 @@ from scripts.compare_answers import run_comparison
 
 app = FastAPI()
 
+# ✅ Allow frontend from Vercel
+origins = [
+    "https://cuet-frontend.vercel.app",
+    "http://localhost:3000",  # for local dev
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

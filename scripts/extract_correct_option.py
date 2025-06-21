@@ -17,6 +17,15 @@ def extract_qid_and_correct_option_from_html(file_path):
     qids = soup.find_all("span", id=lambda x: x and "lbl_QuestionNo" in x)
     corrects = soup.find_all("span", id=lambda x: x and "lbl_RAnswer" in x)
 
+    # Extract Name and Application No (only once per file)
+    name_tag = soup.find("span", id="ctl00_lblName")
+    application_tag = soup.find("span", id="ctl00_lblApplicationNo")
+
+    name = name_tag.text.strip() if name_tag else "Unknown"
+    application_number = application_tag.text.strip() if application_tag else "Unknown"
+
+    print(f"   🧑 Name: {name}")
+    print(f"   🆔 Application No: {application_number}")
     print(f"   ➕ Found {len(qids)} Question IDs")
     print(f"   ✅ Found {len(corrects)} Correct Option IDs")
 
@@ -33,7 +42,9 @@ def extract_qid_and_correct_option_from_html(file_path):
         data.append({
             "Question ID": qid,
             "Correct Option ID": correct_id,
-            "Source File": source_file
+            "Source File": source_file,
+            "Name": name,
+            "Application Number": application_number
         })
 
         print(f"   🟡 QID: {qid}, Correct Option: {correct_id}, File: {source_file}")
@@ -56,7 +67,7 @@ def process_all_html_files():
 
     df = pd.DataFrame(all_data)
 
-    # Remove any rows with missing Source File, QID or Correct Option ID
+    # Remove any rows with missing critical fields
     df.dropna(subset=["Question ID", "Correct Option ID", "Source File"], inplace=True)
 
     df.to_excel(OUTPUT_FILE, index=False)
